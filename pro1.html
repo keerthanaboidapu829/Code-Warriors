@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>NearbyCare — Colourful Prototype</title>
+<title>NearbyCare — Enhanced Prototype</title>
 <style>
   :root {
     --accent:#0077ff;
@@ -18,7 +18,6 @@
     background: linear-gradient(135deg, #eaf6ff 0%, #fefefe 50%, #d1ecff 100%);
     background-attachment: fixed;
   }
-
   header {
     background: linear-gradient(90deg,#0077ff,#00b4d8);
     color:#fff;
@@ -27,7 +26,6 @@
     box-shadow:0 3px 10px rgba(0,0,0,0.2);
     position: relative;
   }
-
   header::after {
     content:"";
     background:url('https://images.unsplash.com/photo-1580281657521-66b8f18c77a5?auto=format&fit=crop&w=1600&q=60') center/cover no-repeat;
@@ -36,9 +34,7 @@
     opacity:0.15;
     z-index:0;
   }
-  header h1, header .small {
-    position:relative; z-index:1;
-  }
+  header h1, header .small { position:relative; z-index:1; }
 
   main {
     display:grid;
@@ -47,7 +43,6 @@
     padding:14px;
     min-height:calc(100vh - 90px);
   }
-
   .panel {
     background:#fff;
     border-radius:10px;
@@ -56,10 +51,7 @@
     overflow:auto;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
-  .panel:hover {
-    transform:translateY(-3px);
-    box-shadow:0 8px 20px rgba(0,0,0,0.1);
-  }
+  .panel:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.1); }
 
   #map {
     height:100%;
@@ -87,18 +79,9 @@
     align-items:center;
     gap:10px;
   }
-  .place-item img {
-    width:60px;
-    height:60px;
-    border-radius:8px;
-    object-fit:cover;
-  }
+  .place-item img { width:60px; height:60px; border-radius:8px; object-fit:cover; }
 
-  label {
-    display:block;
-    font-weight:600;
-    margin-top:8px;
-  }
+  label { display:block; font-weight:600; margin-top:8px; }
   input[type="text"], textarea {
     width:100%;
     padding:8px;
@@ -115,37 +98,18 @@
     color:#333;
     font-size:14px;
   }
-  .pill {
-    display:inline-block;
-    background:#e0f7ff;
-    padding:6px 8px;
-    border-radius:999px;
-    margin-right:6px;
-    font-weight:600;
-  }
-  .danger-banner {
-    background:#fff0f0;
-    border-left:4px solid var(--danger);
-    padding:8px;
-    margin:8px 0;
-    border-radius:6px;
-  }
 
   @media(max-width:960px){
     main{grid-template-columns:1fr;min-height:auto}
     #map{min-height:320px;}
   }
 </style>
-
-<script>
-  const GOOGLE_MAPS_API_KEY = ''; // add your key if needed
-</script>
 </head>
 
 <body>
 <header>
   <h1>NearbyCare — Health & Emergency Assistant 🌍</h1>
-  <div class="small">Find hospitals, pharmacies, injury help & more</div>
+  <div class="small">Find hospitals, pharmacies, and health help near you</div>
 </header>
 
 <main>
@@ -173,7 +137,7 @@
   <!-- Right: Actions -->
   <div class="panel">
     <h3>Quick Assistance</h3>
-    <label>Upload injury image (mock)</label>
+    <label>Upload injury image (body part only)</label>
     <input type="file" id="injury-image" accept="image/*"/>
     <div id="image-result" class="small" style="margin-top:8px"></div>
 
@@ -195,22 +159,36 @@
 </main>
 
 <footer>
-  © 2025 NearbyCare Prototype — Designed for Demo Purposes Only
+  © 2025 NearbyCare Prototype — For Educational Demo Only
 </footer>
 
 <script>
+// Expanded Mock Data
 const MOCK_STORES = [
   {name:'City Hospital',type:'hospital',img:'https://images.unsplash.com/photo-1580281657521-66b8f18c77a5?auto=format&fit=crop&w=400&q=60'},
   {name:'Green Pharmacy',type:'pharmacy',img:'https://images.unsplash.com/photo-1586788224331-947f9cd8df1d?auto=format&fit=crop&w=400&q=60'},
-  {name:'Downtown Clinic',type:'clinic',img:'https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?auto=format&fit=crop&w=400&q=60'}
+  {name:'Downtown Clinic',type:'clinic',img:'https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?auto=format&fit=crop&w=400&q=60'},
+  {name:'Blue Cross Pharmacy',type:'pharmacy',img:'https://images.unsplash.com/photo-1576765608648-bf5d9c6400b2?auto=format&fit=crop&w=400&q=60'},
+  {name:'Apollo Hospital',type:'hospital',img:'https://images.unsplash.com/photo-1504439904031-93ded9b3d5f6?auto=format&fit=crop&w=400&q=60'}
 ];
 
 const MOCK_INVENTORY = {
-  'Green Pharmacy':['paracetamol','ibuprofen','amoxicillin'],
-  'City Hospital':['paracetamol','iv-fluids'],
-  'Downtown Clinic':['paracetamol']
+  'Green Pharmacy':['paracetamol','ibuprofen','amoxicillin','cetirizine','dolo-650','azithromycin'],
+  'Blue Cross Pharmacy':['metformin','atorvastatin','aspirin','omeprazole','vitamin c','zincovit'],
+  'City Hospital':['iv-fluids','betadine','bandages','paracetamol','pain-relief spray'],
+  'Downtown Clinic':['paracetamol','cough syrup','pain gel'],
+  'Apollo Hospital':['amoxicillin','paracetamol','iv-drip','glucose','diclofenac']
 };
 
+const MOCK_SYMPTOMS = {
+  'fever': { cause:'Viral or bacterial infection', precautions:'Drink fluids, rest, take paracetamol if high fever.', medicine:'paracetamol, dolo-650' },
+  'cough': { cause:'Cold, throat infection or allergies', precautions:'Drink warm water, avoid cold drinks, take syrup if severe.', medicine:'cough syrup, cetirizine' },
+  'chest pain': { cause:'Muscle strain or possible cardiac issue', precautions:'Avoid heavy activity, seek doctor if persists.', medicine:'pain relief gel' },
+  'headache': { cause:'Stress, dehydration or migraine', precautions:'Rest, drink water, avoid screen time.', medicine:'paracetamol, ibuprofen' },
+  'vomiting': { cause:'Food poisoning or viral infection', precautions:'Drink ORS, avoid oily food, rest.', medicine:'domperidone, ondansetron' }
+};
+
+// Render function
 function renderPlaceList(list){
   const c=document.getElementById('places-list');
   c.innerHTML='';
@@ -222,26 +200,94 @@ function renderPlaceList(list){
   });
 }
 
+// Event handlers
 document.getElementById('btn-find').onclick=()=>{
   renderPlaceList(MOCK_STORES);
   document.getElementById('status').textContent='Showing mock nearby places';
 };
 
 document.getElementById('btn-check-medicine').onclick=()=>{
-  const name=document.getElementById('medicine-name').value.toLowerCase();
+  const name=document.getElementById('medicine-name').value.trim().toLowerCase();
   const res=document.getElementById('medicine-result');
+  if(!name){ res.innerHTML='⚠️ Please enter a medicine name.'; return; }
   const found=Object.entries(MOCK_INVENTORY).filter(([store,meds])=>meds.some(m=>m.includes(name)));
-  if(!found.length) res.innerHTML=`❌ No stores have "${name}"`;
-  else res.innerHTML=found.map(([s,meds])=>`✅ ${s} has ${meds.join(', ')}`).join('<br>');
+  if(!found.length) res.innerHTML=`❌ No stores have "${name}".`;
+  else res.innerHTML=found.map(([s,meds])=>`✅ <strong>${s}</strong> has ${meds.join(', ')}`).join('<br>');
 };
 
-document.getElementById('btn-locate').onclick=()=>{alert("Using mock location for now.")};
-document.getElementById('btn-accident').onclick=()=>{alert("Simulated accident nearby — showing hospitals")};
-document.getElementById('btn-check-symptoms').onclick=()=>{document.getElementById('symptom-result').innerHTML="Basic self-care suggested. Drink water and rest."};
-document.getElementById('injury-image').onchange=()=>{document.getElementById('image-result').innerHTML="Image analyzed (mock). Possible arm injury — apply antiseptic & wrap dressing."};
-document.getElementById('btn-emergency').onclick=()=>{alert("Call emergency number immediately!")};
+// Enhanced symptom checker that finds nearby stores with suggested medicines
+document.getElementById('btn-check-symptoms').onclick=()=>{
+  const txt=document.getElementById('symptoms').value.toLowerCase();
+  const res=document.getElementById('symptom-result');
+  if(!txt){ res.innerHTML='⚠️ Please describe your symptoms.'; return; }
+
+  let matched=null;
+  for(const key in MOCK_SYMPTOMS){
+    if(txt.includes(key)){ matched=MOCK_SYMPTOMS[key]; break; }
+  }
+
+  if(matched){
+    const meds = matched.medicine.split(',').map(m=>m.trim().toLowerCase());
+    let availableStores = [];
+
+    // Find stores that have at least one of the suggested medicines
+    for(const [store, inventory] of Object.entries(MOCK_INVENTORY)){
+      const found = meds.filter(m => inventory.includes(m));
+      if(found.length > 0){
+        availableStores.push({store, meds:found});
+      }
+    }
+
+    let storeInfo = availableStores.length
+      ? availableStores.map(s=>`✅ <strong>${s.store}</strong> has: ${s.meds.join(', ')}`).join('<br>')
+      : '❌ No nearby stores have the suggested medicines.';
+
+    res.innerHTML = `
+      <strong>Possible Cause:</strong> ${matched.cause}<br>
+      <strong>Precautions:</strong> ${matched.precautions}<br>
+      <strong>Suggested Medicines:</strong> ${matched.medicine}<br><br>
+      <strong>Nearby Availability:</strong><br>${storeInfo}
+    `;
+  } else {
+    res.innerHTML='⚠️ No match found. Please consult a doctor.';
+  }
+};
+
+// File upload (mock image analysis)
+document.getElementById('injury-image').onchange=(e)=>{
+  const file=e.target.files[0];
+  const res=document.getElementById('image-result');
+  if(!file){ res.innerHTML='No file selected.'; return; }
+  if(!file.type.startsWith('image/')){ res.innerHTML='Please upload an image file.'; return; }
+
+  const name=file.name.toLowerCase();
+  const bodyParts=['hand','leg','arm','head','face','foot','back','chest'];
+  const matchedPart=bodyParts.find(p=>name.includes(p));
+
+  if(!matchedPart){
+    res.innerHTML='❌ Not a recognized body part image. Please upload a photo of a body part injury.';
+    return;
+  }
+
+  switch(matchedPart){
+    case 'hand': res.innerHTML='🩹 Possible hand bruise detected — apply antiseptic & bandage.'; break;
+    case 'leg': res.innerHTML='🦵 Possible leg injury — clean wound & wrap lightly.'; break;
+    case 'arm': res.innerHTML='💪 Possible arm injury — use ice pack and rest.'; break;
+    case 'head': res.innerHTML='🧠 Head area detected — seek immediate medical help if swelling.'; break;
+    case 'face': res.innerHTML='😷 Minor facial wound — clean gently & apply antiseptic cream.'; break;
+    case 'foot': res.innerHTML='🦶 Possible foot injury — wash and apply ointment.'; break;
+    case 'back': res.innerHTML='🩻 Back strain — apply ice pack & rest well.'; break;
+    case 'chest': res.innerHTML='❤️ Chest area detected — seek medical help if pain persists.'; break;
+    default: res.innerHTML='🩺 Image analyzed — minor injury detected.';
+  }
+};
+
+document.getElementById('btn-locate').onclick=()=>{ alert("Using mock location for now."); };
+document.getElementById('btn-accident').onclick=()=>{ alert("Simulated accident nearby — showing hospitals."); };
+document.getElementById('btn-emergency').onclick=()=>{ alert("Call 108 or nearest emergency number immediately!"); };
 
 renderPlaceList(MOCK_STORES);
 </script>
 </body>
 </html>
+

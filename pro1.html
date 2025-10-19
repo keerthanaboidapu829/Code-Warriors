@@ -3,291 +3,766 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>NearbyCare — Enhanced Prototype</title>
+<title>NearbyCare — Modern Health Assistant</title>
 <style>
   :root {
-    --accent:#0077ff;
-    --danger:#e63946;
-    --muted:#555;
-    --bg:#eaf6ff;
+    --primary: #2e7d32;
+    --primary-light: #4caf50;
+    --primary-dark: #1b5e20;
+    --secondary: #ff6f00;
+    --accent: #d32f2f;
+    --muted: #5d4037;
+    --bg: #f8fdf8;
+    --card: #ffffff;
+    --text: #2e2e2e;
   }
   body {
-    font-family: "Poppins", sans-serif;
+    font-family: "Inter", "Segoe UI", sans-serif;
     margin:0;
-    color:#111;
-    background: linear-gradient(135deg, #eaf6ff 0%, #fefefe 50%, #d1ecff 100%);
+    color: var(--text);
+    background: linear-gradient(135deg, #f8fdf8 0%, #e8f5e9 50%, #f1f8e9 100%);
     background-attachment: fixed;
+    line-height: 1.6;
   }
   header {
-    background: linear-gradient(90deg,#0077ff,#00b4d8);
-    color:#fff;
-    padding:18px 22px;
-    text-align:center;
-    box-shadow:0 3px 10px rgba(0,0,0,0.2);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #fff;
+    padding: 20px 24px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);
     position: relative;
+    border-bottom: 4px solid var(--secondary);
   }
   header::after {
     content:"";
-    background:url('https://images.unsplash.com/photo-1580281657521-66b8f18c77a5?auto=format&fit=crop&w=1600&q=60') center/cover no-repeat;
+    background: url('https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=1600&q=60') center/cover no-repeat;
     position:absolute;
     top:0; left:0; right:0; bottom:0;
-    opacity:0.15;
+    opacity:0.1;
     z-index:0;
   }
-  header h1, header .small { position:relative; z-index:1; }
+  header h1, header .subtitle { 
+    position:relative; 
+    z-index:1;
+    margin: 0;
+  }
+  header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    font-size: 1rem;
+    opacity: 0.9;
+    font-weight: 400;
+  }
 
   main {
-    display:grid;
-    grid-template-columns:1fr 380px;
-    gap:14px;
-    padding:14px;
-    min-height:calc(100vh - 90px);
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: calc(100vh - 140px);
   }
-  .panel {
-    background:#fff;
-    border-radius:10px;
-    box-shadow:0 5px 18px rgba(0,0,0,0.07);
-    padding:14px;
-    overflow:auto;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  .panel:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.1); }
 
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    padding: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(76, 175, 80, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e8f5e9;
+  }
+  .card-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin: 0;
+  }
+
+  #map-container {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
   #map {
-    height:100%;
-    min-height:460px;
-    border-radius:10px;
-    background:url('https://images.unsplash.com/photo-1526256262350-7da7584cf5eb?auto=format&fit=crop&w=1200&q=60') center/cover no-repeat;
+    height: 500px;
+    width: 100%;
+    border-radius: 12px;
+    background: url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?auto=format&fit=crop&w=1200&q=60') center/cover no-repeat;
+  }
+
+  .map-controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
   }
 
   button {
-    margin:6px 4px;
-    padding:9px 12px;
-    border-radius:6px;
-    border:1px solid #ddd;
-    cursor:pointer;
-    font-weight:600;
+    margin: 4px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
   }
-  .btn-primary { background:var(--accent); color:#fff; border:none; }
-  .btn-danger { background:var(--danger); color:#fff; border:none; }
-  .btn-warning { background:#ffbf69; border:none; color:#111; }
+  .btn-primary { 
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #fff; 
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(46, 125, 50, 0.4);
+  }
+  .btn-secondary { 
+    background: #f5f5f5; 
+    color: var(--text);
+    border: 1px solid #e0e0e0;
+  }
+  .btn-secondary:hover {
+    background: #eeeeee;
+    transform: translateY(-1px);
+  }
+  .btn-warning { 
+    background: linear-gradient(135deg, var(--secondary) 0%, #ff8f00 100%);
+    color: #fff; 
+    box-shadow: 0 4px 12px rgba(255, 111, 0, 0.3);
+  }
+  .btn-danger { 
+    background: linear-gradient(135deg, var(--accent) 0%, #f44336 100%);
+    color: #fff; 
+    box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+  }
 
-  .place-item {
-    padding:10px;
-    border-bottom:1px solid #eee;
-    display:flex;
-    align-items:center;
-    gap:10px;
+  .places-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
   }
-  .place-item img { width:60px; height:60px; border-radius:8px; object-fit:cover; }
+  .place-card {
+    background: #fafafa;
+    border-radius: 12px;
+    padding: 16px;
+    border-left: 4px solid var(--primary);
+    transition: all 0.2s ease;
+  }
+  .place-card:hover {
+    background: #f1f8e9;
+    transform: translateX(4px);
+  }
+  .place-card img {
+    width: 100%;
+    height: 120px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-bottom: 12px;
+  }
+  .place-name {
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-bottom: 4px;
+  }
+  .place-type {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 
-  label { display:block; font-weight:600; margin-top:8px; }
-  input[type="text"], textarea {
-    width:100%;
-    padding:8px;
-    border-radius:6px;
-    border:1px solid #ccc;
-    margin-top:5px;
-    font-size:14px;
+  /* Multi-step process */
+  .process-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    position: relative;
   }
-  .small { font-size:13px; color:var(--muted); }
+  .process-steps::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 10%;
+    right: 10%;
+    height: 3px;
+    background: #e0e0e0;
+    z-index: 1;
+  }
+  .step {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    flex: 1;
+  }
+  .step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    color: #9e9e9e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  .step.active .step-circle {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.4);
+  }
+  .step-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #9e9e9e;
+  }
+  .step.active .step-label {
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .page { 
+    display: none; 
+    animation: fadeIn 0.4s ease;
+  }
+  .page.active { 
+    display: block; 
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+  label { 
+    display: block; 
+    font-weight: 600; 
+    margin-bottom: 8px;
+    color: var(--primary-dark);
+  }
+  input[type="text"], textarea, select {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: #fafafa;
+  }
+  input[type="text"]:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+  }
+
+  #image-preview {
+    width: 100%;
+    max-height: 200px;
+    border-radius: 12px;
+    margin-top: 12px;
+    display: none;
+    object-fit: cover;
+    border: 2px dashed var(--primary-light);
+  }
+
+  .result-box {
+    background: #f1f8e9;
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 16px;
+    border-left: 4px solid var(--primary);
+  }
+
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    gap: 12px;
+  }
+  .nav-buttons button {
+    flex: 1;
+  }
+
   footer {
-    text-align:center;
-    padding:12px;
-    background:#f0faff;
-    color:#333;
-    font-size:14px;
+    text-align: center;
+    padding: 20px;
+    background: var(--primary-dark);
+    color: rgba(255,255,255,0.8);
+    font-size: 0.9rem;
+    margin-top: 40px;
   }
 
-  @media(max-width:960px){
-    main{grid-template-columns:1fr;min-height:auto}
-    #map{min-height:320px;}
+  .status-badge {
+    background: var(--primary-light);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  @media (max-width: 1024px) {
+    main {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    #map {
+      height: 400px;
+    }
+    .places-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    header h1 {
+      font-size: 1.8rem;
+    }
+    .card {
+      padding: 16px;
+    }
+    .map-controls {
+      flex-direction: column;
+    }
+    .map-controls button {
+      width: 100%;
+      justify-content: center;
+    }
   }
 </style>
 </head>
 
 <body>
 <header>
-  <h1>NearbyCare — Health & Emergency Assistant 🌍</h1>
-  <div class="small">Find hospitals, pharmacies, and health help near you</div>
+  <h1>🏥 NearbyCare Health Assistant</h1>
+  <div class="subtitle">Your trusted companion for medical emergencies and health support</div>
 </header>
 
 <main>
-  <!-- Left: Map -->
-  <div class="panel">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div>
-        <button id="btn-locate" class="btn-primary">📍 My Location</button>
-        <button id="btn-accident" class="btn-warning">⚠️ Simulate Accident</button>
-      </div>
-      <span id="status" class="small"></span>
+  <!-- Left Column: Map & Locations -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">📍 Nearby Medical Facilities</h2>
+      <div class="status-badge" id="status">Ready</div>
     </div>
-    <div id="map">Loading map...</div>
-    <div style="margin-top:10px;">
-      <select id="place-type" style="padding:8px;border-radius:6px;border:1px solid #ddd">
-        <option value="hospital">Hospitals</option>
-        <option value="clinic">Clinics</option>
-        <option value="pharmacy" selected>Pharmacies</option>
+    
+    <div class="map-controls">
+      <button id="btn-locate" class="btn-primary">
+        <span>📱</span> Use My Location
+      </button>
+      <button id="btn-accident" class="btn-warning">
+        <span>🚨</span> Emergency Mode
+      </button>
+      <select id="place-type" style="flex: 1; min-width: 150px;">
+        <option value="hospital">🏥 Hospitals</option>
+        <option value="clinic">🩺 Clinics</option>
+        <option value="pharmacy" selected>💊 Pharmacies</option>
+        <option value="all">All Facilities</option>
       </select>
-      <button id="btn-find" class="btn-primary">Find Nearby</button>
+      <button id="btn-find" class="btn-primary">
+        <span>🔍</span> Search Nearby
+      </button>
     </div>
-    <div id="places-list" style="max-height:240px;overflow:auto;margin-top:8px;"></div>
+
+    <div id="map-container">
+      <div id="map"></div>
+    </div>
+
+    <div class="places-grid" id="places-list">
+      <!-- Places will be dynamically inserted here -->
+    </div>
   </div>
 
-  <!-- Right: Actions -->
-  <div class="panel">
-    <h3>Quick Assistance</h3>
-    <label>Upload injury image (body part only)</label>
-    <input type="file" id="injury-image" accept="image/*"/>
-    <div id="image-result" class="small" style="margin-top:8px"></div>
+  <!-- Right Column: Multi-step Process -->
+  <div class="card">
+    <div class="process-steps">
+      <div class="step active" data-step="1">
+        <div class="step-circle">1</div>
+        <div class="step-label">Upload Image</div>
+      </div>
+      <div class="step" data-step="2">
+        <div class="step-circle">2</div>
+        <div class="step-label">Check Symptoms</div>
+      </div>
+      <div class="step" data-step="3">
+        <div class="step-circle">3</div>
+        <div class="step-label">Find Medicine</div>
+      </div>
+    </div>
 
-    <hr/>
-    <label>Describe your symptoms</label>
-    <textarea id="symptoms" rows="3" placeholder="e.g. fever, cough, chest pain"></textarea>
-    <button id="btn-check-symptoms" class="btn-primary" style="margin-top:8px">Check Symptoms</button>
-    <div id="symptom-result" style="margin-top:8px"></div>
+    <!-- Page 1: Image Upload -->
+    <div id="page-1" class="page active">
+      <h3>📸 Upload Injury Image</h3>
+      <div class="form-group">
+        <label>Select an image of the affected area</label>
+        <input type="file" id="injury-image" accept="image/*" style="padding: 12px; border: 2px dashed #bdbdbd; background: #fafafa; cursor: pointer;"/>
+        <img id="image-preview" src="" alt="Image preview"/>
+      </div>
+      <div id="image-result" class="result-box" style="display: none;"></div>
+      
+      <div class="nav-buttons">
+        <div></div>
+        <button id="btn-to-symptoms" class="btn-primary">
+          Next: Check Symptoms →
+        </button>
+      </div>
+    </div>
 
-    <hr/>
-    <label>Medicine availability</label>
-    <input type="text" id="medicine-name" placeholder="Enter medicine name..."/>
-    <button id="btn-check-medicine" class="btn-primary" style="margin-top:8px">Check Availability</button>
-    <div id="medicine-result" style="margin-top:8px"></div>
+    <!-- Page 2: Symptoms Check -->
+    <div id="page-2" class="page">
+      <h3>🩺 Describe Your Symptoms</h3>
+      <div class="form-group">
+        <label>What symptoms are you experiencing?</label>
+        <textarea id="symptoms" rows="4" placeholder="Example: fever, headache, cough, chest pain, shoulder injury..."></textarea>
+      </div>
+      <button id="btn-check-symptoms" class="btn-primary" style="width: 100%;">
+        Analyze Symptoms
+      </button>
+      <div id="symptom-result" class="result-box" style="display: none;"></div>
+      
+      <div class="nav-buttons">
+        <button id="btn-to-image" class="btn-secondary">
+          ← Back
+        </button>
+        <button id="btn-to-medicine" class="btn-primary">
+          Next: Find Medicine →
+        </button>
+      </div>
+    </div>
 
-    <hr/>
-    <button id="btn-emergency" class="btn-danger" style="width:100%;font-size:15px;">🚨 Emergency Call</button>
+    <!-- Page 3: Medicine Availability -->
+    <div id="page-3" class="page">
+      <h3>💊 Medicine Availability Check</h3>
+      <div class="form-group">
+        <label>Search for specific medicine</label>
+        <input type="text" id="medicine-name" placeholder="Enter medicine name (e.g., paracetamol, ibuprofen)"/>
+      </div>
+      <button id="btn-check-medicine" class="btn-primary" style="width: 100%;">
+        Check Availability
+      </button>
+      <div id="medicine-result" class="result-box" style="display: none;"></div>
+      
+      <div class="nav-buttons">
+        <button id="btn-to-symptoms-back" class="btn-secondary">
+          ← Back to Symptoms
+        </button>
+        <button id="btn-restart" class="btn-primary">
+          Start New Assessment
+        </button>
+      </div>
+    </div>
+
+    <!-- Emergency Section -->
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #ffcdd2;">
+      <button id="btn-emergency" class="btn-danger" style="width: 100%; padding: 16px; font-size: 1.1rem;">
+        🚨 EMERGENCY CALL - 108 / 911
+      </button>
+      <div style="text-align: center; margin-top: 12px; font-size: 0.85rem; color: var(--muted);">
+        Immediate medical assistance
+      </div>
+    </div>
   </div>
 </main>
 
 <footer>
-  © 2025 NearbyCare Prototype — For Educational Demo Only
+  © 2025 NearbyCare Health Assistant — Demonstration Prototype | Not for actual medical use
 </footer>
 
 <script>
-// Expanded Mock Data
+// Enhanced Mock Data
 const MOCK_STORES = [
-  {name:'City Hospital',type:'hospital',img:'https://images.unsplash.com/photo-1580281657521-66b8f18c77a5?auto=format&fit=crop&w=400&q=60'},
-  {name:'Green Pharmacy',type:'pharmacy',img:'https://images.unsplash.com/photo-1586788224331-947f9cd8df1d?auto=format&fit=crop&w=400&q=60'},
-  {name:'Downtown Clinic',type:'clinic',img:'https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?auto=format&fit=crop&w=400&q=60'},
-  {name:'Blue Cross Pharmacy',type:'pharmacy',img:'https://images.unsplash.com/photo-1576765608648-bf5d9c6400b2?auto=format&fit=crop&w=400&q=60'},
-  {name:'Apollo Hospital',type:'hospital',img:'https://images.unsplash.com/photo-1504439904031-93ded9b3d5f6?auto=format&fit=crop&w=400&q=60'}
+  {name:'City General Hospital',type:'hospital',img:'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=400&q=60', distance: '1.2 km'},
+  {name:'Green Valley Pharmacy',type:'pharmacy',img:'https://images.unsplash.com/photo-1603398938373-e54da0c5b96f?auto=format&fit=crop&w=400&q=60', distance: '0.8 km'},
+  {name:'Downtown Medical Clinic',type:'clinic',img:'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=400&q=60', distance: '1.5 km'},
+  {name:'Blue Cross Pharmacy',type:'pharmacy',img:'https://images.unsplash.com/photo-1576671414121-aa0f8f2ad4b9?auto=format&fit=crop&w=400&q=60', distance: '2.1 km'},
+  {name:'Apollo Speciality Hospital',type:'hospital',img:'https://images.unsplash.com/photo-1532938911079-9f3c6b79d067?auto=format&fit=crop&w=400&q=60', distance: '3.2 km'},
+  {name:'Community Health Center',type:'clinic',img:'https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&w=400&q=60', distance: '2.8 km'}
 ];
 
 const MOCK_INVENTORY = {
-  'Green Pharmacy':['paracetamol','ibuprofen','amoxicillin','cetirizine','dolo-650','azithromycin'],
-  'Blue Cross Pharmacy':['metformin','atorvastatin','aspirin','omeprazole','vitamin c','zincovit'],
-  'City Hospital':['iv-fluids','betadine','bandages','paracetamol','pain-relief spray'],
-  'Downtown Clinic':['paracetamol','cough syrup','pain gel'],
-  'Apollo Hospital':['amoxicillin','paracetamol','iv-drip','glucose','diclofenac']
+  'Green Valley Pharmacy':['paracetamol','ibuprofen','amoxicillin','cetirizine','dolo-650','azithromycin','vitamin c'],
+  'Blue Cross Pharmacy':['metformin','atorvastatin','aspirin','omeprazole','vitamin c','zincovit','calcium'],
+  'City General Hospital':['iv-fluids','betadine','bandages','paracetamol','pain-relief spray','antibiotics'],
+  'Downtown Medical Clinic':['paracetamol','cough syrup','pain gel','antiseptic cream'],
+  'Apollo Speciality Hospital':['amoxicillin','paracetamol','iv-drip','glucose','diclofenac','emergency kit'],
+  'Community Health Center':['basic first aid','pain relievers','antiseptics','bandages']
 };
 
 const MOCK_SYMPTOMS = {
-  'fever': { cause:'Viral or bacterial infection', precautions:'Drink fluids, rest, take paracetamol if high fever.', medicine:'paracetamol, dolo-650' },
-  'cough': { cause:'Cold, throat infection or allergies', precautions:'Drink warm water, avoid cold drinks, take syrup if severe.', medicine:'cough syrup, cetirizine' },
-  'chest pain': { cause:'Muscle strain or possible cardiac issue', precautions:'Avoid heavy activity, seek doctor if persists.', medicine:'pain relief gel' },
-  'headache': { cause:'Stress, dehydration or migraine', precautions:'Rest, drink water, avoid screen time.', medicine:'paracetamol, ibuprofen' },
-  'vomiting': { cause:'Food poisoning or viral infection', precautions:'Drink ORS, avoid oily food, rest.', medicine:'domperidone, ondansetron' }
+  'fever': { cause:'Viral or bacterial infection', precautions:'Drink plenty of fluids, rest, monitor temperature regularly.', medicine:'paracetamol, dolo-650' },
+  'cough': { cause:'Common cold, throat infection or allergies', precautions:'Stay hydrated, use humidifier, avoid irritants.', medicine:'cough syrup, cetirizine' },
+  'chest pain': { cause:'Muscle strain or possible cardiac issue', precautions:'Avoid physical exertion, seek immediate medical attention if severe.', medicine:'consult doctor immediately' },
+  'headache': { cause:'Stress, dehydration, tension or migraine', precautions:'Rest in dark room, stay hydrated, reduce screen time.', medicine:'paracetamol, ibuprofen' },
+  'vomiting': { cause:'Food poisoning, viral infection or motion sickness', precautions:'Sip clear fluids, avoid solid foods initially, rest.', medicine:'domperidone, ondansetron' },
+  'shoulder pain': { cause:'Muscle strain, rotator cuff injury, or arthritis', precautions:'Rest shoulder, apply ice pack, avoid heavy lifting.', medicine:'ibuprofen, pain relief gel' },
+  'allergy': { cause:'Environmental triggers or food allergens', precautions:'Avoid known allergens, use air purifier.', medicine:'cetirizine, antihistamines' }
 };
 
-// Render function
+// Page Navigation Functions
+function showPage(pageNumber) {
+  // Update steps
+  document.querySelectorAll('.step').forEach(step => {
+    step.classList.remove('active');
+  });
+  document.querySelector(`.step[data-step="${pageNumber}"]`).classList.add('active');
+  
+  // Update pages
+  document.querySelectorAll('.page').forEach(page => {
+    page.classList.remove('active');
+  });
+  document.getElementById(`page-${pageNumber}`).classList.add('active');
+}
+
+// Initialize with page 1
+showPage(1);
+
+// Enhanced render function for places
 function renderPlaceList(list){
-  const c=document.getElementById('places-list');
-  c.innerHTML='';
-  list.forEach(p=>{
-    const el=document.createElement('div');
-    el.className='place-item';
-    el.innerHTML=`<img src="${p.img}" alt="img"/><div><strong>${p.name}</strong><br><span class="small">${p.type}</span></div>`;
-    c.appendChild(el);
+  const container = document.getElementById('places-list');
+  container.innerHTML = '';
+  
+  list.forEach(place => {
+    const card = document.createElement('div');
+    card.className = 'place-card';
+    card.innerHTML = `
+      <img src="${place.img}" alt="${place.name}"/>
+      <div class="place-name">${place.name}</div>
+      <div class="place-type">${place.type} • ${place.distance}</div>
+      <div style="margin-top: 8px; font-size: 0.8rem; color: #666;">
+        Available: ${MOCK_INVENTORY[place.name]?.slice(0, 3).join(', ')}...
+      </div>
+    `;
+    container.appendChild(card);
   });
 }
 
-// Event handlers
-document.getElementById('btn-find').onclick=()=>{
-  renderPlaceList(MOCK_STORES);
-  document.getElementById('status').textContent='Showing mock nearby places';
+// Event handlers for page navigation
+document.getElementById('btn-to-symptoms').onclick = () => showPage(2);
+document.getElementById('btn-to-image').onclick = () => showPage(1);
+document.getElementById('btn-to-medicine').onclick = () => showPage(3);
+document.getElementById('btn-to-symptoms-back').onclick = () => showPage(2);
+document.getElementById('btn-restart').onclick = () => {
+  // Reset all form fields
+  document.getElementById('injury-image').value = '';
+  document.getElementById('image-preview').style.display = 'none';
+  document.getElementById('image-result').style.display = 'none';
+  document.getElementById('symptoms').value = '';
+  document.getElementById('symptom-result').style.display = 'none';
+  document.getElementById('medicine-name').value = '';
+  document.getElementById('medicine-result').style.display = 'none';
+  
+  // Go back to first page
+  showPage(1);
+  document.getElementById('status').textContent = 'New assessment started';
 };
 
-document.getElementById('btn-check-medicine').onclick=()=>{
-  const name=document.getElementById('medicine-name').value.trim().toLowerCase();
-  const res=document.getElementById('medicine-result');
-  if(!name){ res.innerHTML='⚠️ Please enter a medicine name.'; return; }
-  const found=Object.entries(MOCK_INVENTORY).filter(([store,meds])=>meds.some(m=>m.includes(name)));
-  if(!found.length) res.innerHTML=`❌ No stores have "${name}".`;
-  else res.innerHTML=found.map(([s,meds])=>`✅ <strong>${s}</strong> has ${meds.join(', ')}`).join('<br>');
+// Enhanced functionality handlers
+document.getElementById('btn-find').onclick = () => {
+  const type = document.getElementById('place-type').value;
+  let filteredStores = MOCK_STORES;
+  
+  if (type !== 'all') {
+    filteredStores = MOCK_STORES.filter(store => store.type === type);
+  }
+  
+  renderPlaceList(filteredStores);
+  document.getElementById('status').textContent = `Found ${filteredStores.length} ${type} facilities`;
 };
 
-// Enhanced symptom checker that finds nearby stores with suggested medicines
-document.getElementById('btn-check-symptoms').onclick=()=>{
-  const txt=document.getElementById('symptoms').value.toLowerCase();
-  const res=document.getElementById('symptom-result');
-  if(!txt){ res.innerHTML='⚠️ Please describe your symptoms.'; return; }
+document.getElementById('btn-check-medicine').onclick = () => {
+  const name = document.getElementById('medicine-name').value.trim().toLowerCase();
+  const res = document.getElementById('medicine-result');
+  
+  if(!name){ 
+    res.innerHTML = '⚠️ Please enter a medicine name.';
+    res.style.display = 'block';
+    return; 
+  }
+  
+  const found = Object.entries(MOCK_INVENTORY).filter(([store,meds]) => 
+    meds.some(m => m.includes(name))
+  );
+  
+  if(!found.length) {
+    res.innerHTML = `❌ "${name}" not available in nearby stores.`;
+  } else {
+    res.innerHTML = `
+      <strong>✅ "${name}" available at:</strong><br><br>
+      ${found.map(([s,meds]) => 
+        `🏪 <strong>${s}</strong><br>
+         📍 Distance: ${MOCK_STORES.find(p => p.name === s)?.distance || 'Nearby'}<br>
+         💊 Available medicines: ${meds.filter(m => m.includes(name)).join(', ')}<br><br>`
+      ).join('')}
+    `;
+  }
+  res.style.display = 'block';
+};
 
-  let matched=null;
+// Enhanced symptom checker
+document.getElementById('btn-check-symptoms').onclick = () => {
+  const txt = document.getElementById('symptoms').value.toLowerCase();
+  const res = document.getElementById('symptom-result');
+  
+  if(!txt){ 
+    res.innerHTML = '⚠️ Please describe your symptoms.';
+    res.style.display = 'block';
+    return; 
+  }
+
+  let matched = null;
+  let matchedKey = '';
+  
   for(const key in MOCK_SYMPTOMS){
-    if(txt.includes(key)){ matched=MOCK_SYMPTOMS[key]; break; }
+    if(txt.includes(key)){ 
+      matched = MOCK_SYMPTOMS[key]; 
+      matchedKey = key;
+      break; 
+    }
   }
 
   if(matched){
-    const meds = matched.medicine.split(',').map(m=>m.trim().toLowerCase());
+    const meds = matched.medicine.split(',').map(m => m.trim().toLowerCase());
     let availableStores = [];
 
-    // Find stores that have at least one of the suggested medicines
     for(const [store, inventory] of Object.entries(MOCK_INVENTORY)){
       const found = meds.filter(m => inventory.includes(m));
       if(found.length > 0){
-        availableStores.push({store, meds:found});
+        availableStores.push({store, meds: found});
       }
     }
 
     let storeInfo = availableStores.length
-      ? availableStores.map(s=>`✅ <strong>${s.store}</strong> has: ${s.meds.join(', ')}`).join('<br>')
+      ? availableStores.map(s => 
+          `🏥 <strong>${s.store}</strong> has: ${s.meds.join(', ')}`
+        ).join('<br>')
       : '❌ No nearby stores have the suggested medicines.';
 
     res.innerHTML = `
+      <div style="margin-bottom: 15px;">
+        <strong style="color: var(--primary-dark);">Detected: ${matchedKey.toUpperCase()}</strong>
+      </div>
       <strong>Possible Cause:</strong> ${matched.cause}<br>
-      <strong>Precautions:</strong> ${matched.precautions}<br>
+      <strong>Recommended Precautions:</strong> ${matched.precautions}<br>
       <strong>Suggested Medicines:</strong> ${matched.medicine}<br><br>
       <strong>Nearby Availability:</strong><br>${storeInfo}
     `;
   } else {
-    res.innerHTML='⚠️ No match found. Please consult a doctor.';
+    res.innerHTML = '⚠️ No specific condition detected. Please consult a healthcare professional for accurate diagnosis.';
   }
+  res.style.display = 'block';
 };
 
-// File upload (mock image analysis)
-document.getElementById('injury-image').onchange=(e)=>{
-  const file=e.target.files[0];
-  const res=document.getElementById('image-result');
-  if(!file){ res.innerHTML='No file selected.'; return; }
-  if(!file.type.startsWith('image/')){ res.innerHTML='Please upload an image file.'; return; }
+// Enhanced file upload with image preview
+document.getElementById('injury-image').onchange = (e) => {
+  const file = e.target.files[0];
+  const res = document.getElementById('image-result');
+  const preview = document.getElementById('image-preview');
+  
+  if(!file){ 
+    res.innerHTML = 'No file selected.';
+    res.style.display = 'none';
+    preview.style.display = 'none';
+    return; 
+  }
+  
+  if(!file.type.startsWith('image/')){ 
+    res.innerHTML = 'Please upload an image file.';
+    res.style.display = 'block';
+    preview.style.display = 'none';
+    return; 
+  }
 
-  const name=file.name.toLowerCase();
-  const bodyParts=['hand','leg','arm','head','face','foot','back','chest'];
-  const matchedPart=bodyParts.find(p=>name.includes(p));
+  // Show image preview
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+  }
+  reader.readAsDataURL(file);
+
+  const name = file.name.toLowerCase();
+  const bodyParts = ['hand','leg','arm','head','face','foot','back','chest','shoulder','knee','elbow','wrist'];
+  const matchedPart = bodyParts.find(p => name.includes(p));
 
   if(!matchedPart){
-    res.innerHTML='❌ Not a recognized body part image. Please upload a photo of a body part injury.';
+    res.innerHTML = '❌ Unable to identify specific body part. Please ensure the image clearly shows the injured area.';
+    res.style.display = 'block';
     return;
   }
 
+  let analysis = '';
   switch(matchedPart){
-    case 'hand': res.innerHTML='🩹 Possible hand bruise detected — apply antiseptic & bandage.'; break;
-    case 'leg': res.innerHTML='🦵 Possible leg injury — clean wound & wrap lightly.'; break;
-    case 'arm': res.innerHTML='💪 Possible arm injury — use ice pack and rest.'; break;
-    case 'head': res.innerHTML='🧠 Head area detected — seek immediate medical help if swelling.'; break;
-    case 'face': res.innerHTML='😷 Minor facial wound — clean gently & apply antiseptic cream.'; break;
-    case 'foot': res.innerHTML='🦶 Possible foot injury — wash and apply ointment.'; break;
-    case 'back': res.innerHTML='🩻 Back strain — apply ice pack & rest well.'; break;
-    case 'chest': res.innerHTML='❤️ Chest area detected — seek medical help if pain persists.'; break;
-    default: res.innerHTML='🩺 Image analyzed — minor injury detected.';
+    case 'hand': analysis = '🩹 Hand injury detected — Clean with antiseptic, apply bandage, avoid strenuous activity.'; break;
+    case 'leg': analysis = '🦵 Leg injury identified — Elevate if swollen, apply cold compress, rest.'; break;
+    case 'arm': analysis = '💪 Arm injury noted — Use sling for support, apply ice, avoid heavy lifting.'; break;
+    case 'shoulder': analysis = '🤷 Shoulder injury detected — Apply ice pack, rest, consider shoulder sling. Avoid overhead activities.'; break;
+    case 'head': analysis = '🧠 Head area identified — Monitor for concussion symptoms. Seek immediate help if dizziness or nausea occurs.'; break;
+    case 'face': analysis = '😷 Facial injury — Clean gently with antiseptic, apply cold compress for swelling.'; break;
+    case 'foot': analysis = '🦶 Foot injury — Rest, elevate, apply cold pack. Wear comfortable shoes.'; break;
+    case 'back': analysis = '🩻 Back strain — Apply ice, rest on firm surface. Avoid bending or twisting.'; break;
+    case 'chest': analysis = '❤️ Chest area — Monitor breathing. Seek emergency care if pain radiates to arm or jaw.'; break;
+    case 'knee': analysis = '🦵 Knee injury — Rest, ice, compression, elevation (RICE method). Avoid weight-bearing.'; break;
+    default: analysis = '🩺 Injury analyzed — Apply basic first aid. Consult doctor if condition worsens.';
   }
+
+  res.innerHTML = `
+    <strong>Analysis Complete:</strong><br>
+    ${analysis}<br><br>
+    <em>Note: This is AI-assisted analysis. For serious injuries, consult a healthcare professional.</em>
+  `;
+  res.style.display = 'block';
 };
 
-document.getElementById('btn-locate').onclick=()=>{ alert("Using mock location for now."); };
-document.getElementById('btn-accident').onclick=()=>{ alert("Simulated accident nearby — showing hospitals."); };
-document.getElementById('btn-emergency').onclick=()=>{ alert("Call 108 or nearest emergency number immediately!"); };
+// Other button handlers
+document.getElementById('btn-locate').onclick = () => { 
+  document.getElementById('status').textContent = 'Location accessed - Showing nearby facilities';
+  renderPlaceList(MOCK_STORES.slice(0, 4));
+};
 
-renderPlaceList(MOCK_STORES);
+document.getElementById('btn-accident').onclick = () => { 
+  document.getElementById('status').textContent = 'EMERGENCY MODE - Showing nearest hospitals';
+  const hospitals = MOCK_STORES.filter(s => s.type === 'hospital');
+  renderPlaceList(hospitals);
+  alert("🚨 Emergency mode activated! Directing to nearest hospitals. Call 108/911 if this is a real emergency!");
+};
+
+document.getElementById('btn-emergency').onclick = () => { 
+  alert("🚨 EMERGENCY CALL\n\nConnecting to emergency services...\n\nPlease stay on the line. Help is on the way!\n\nIf this is a test, please cancel. For real emergencies, call 108 or 911 immediately."); 
+};
+
+// Initialize the page
+renderPlaceList(MOCK_STORES.slice(0, 3));
+document.getElementById('status').textContent = 'Ready to assist';
 </script>
 </body>
 </html>
+
 
